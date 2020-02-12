@@ -1,8 +1,7 @@
-# svelte-web
+# svelte-mpa
 
 #### TODO
 - 构建打印优化
-- dashboard
 - browserSync
 
 #### FINISH
@@ -13,10 +12,7 @@
 - 目录整理(组件目录)
 - 构建删除dist文件
 - html-webpack-plugin引入TDK + TDK配置问题
-- 构建definePlugin
-- 构建文件拆分为目录
-
-#### 自带
+- DefinePlugin, webpack-dashboard
 - Eslint
 - Svelte-preprocess
 

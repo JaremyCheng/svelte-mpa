@@ -1,53 +1,15 @@
+const path = require('path');
+const { DefinePlugin } = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin;
-const path = require('path');
-const globby = require('globby');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const sveltePreprocess = require('svelte-preprocess');
-const mode = process.env.NODE_ENV || 'development';
-const prod = mode === 'production';
-
-// CDN路径配置
-const CDN_PATH = prod ? './' : '';
-
-function getEntries() {
-  try {
-    const entries = {};
-    const allEntry = globby.sync('src/modules/**/main.js');
-    allEntry.forEach(entry => {
-      const res = entry.match(/src\/modules\/(\w+)\/main\.js/);
-      if (res.length) {
-        entries[res[1]] = `./${entry}`;
-      }
-    });
-    return entries;
-  } catch (error) {
-    console.error('File structure is incorrect for MPA');
-  }
-}
-
-function multiHtmlPlugin(entries) {
-  // html-webpack-plugin版本固定为3.0.7, 处理编译时Entrypoint = undefined问题
-  // https://github.com/jantimon/html-webpack-plugin/issues/895
-  const pageNames = Object.keys(entries);
-  return pageNames.map(name => {
-    return new HtmlWebpackPlugin({
-      filename: `${name}.html`,
-      template: './public/index.html',
-      chunks: [name],
-      minify: prod
-        ? {
-            removeComments: true,
-            collapseWhitespace: true,
-            minifyCSS: true,
-          }
-        : true,
-    });
-  });
-}
-
+const ProcessBarPlugin = require('progress-bar-webpack-plugin');
+const DashboardPlugin = require('webpack-dashboard/plugin');
+const { mode, isProd, CDN_PATH } = require('./config');
+const { getEntries, multiHtmlPlugin, resolvePath } = require('./utils');
 module.exports = function(env) {
   const entry = getEntries();
 
@@ -56,11 +18,14 @@ module.exports = function(env) {
   const config = {
     entry,
     resolve: {
+      alias: {
+        '@': resolvePath('src'),
+      },
       extensions: ['.mjs', '.js', '.svelte'],
     },
     output: {
       publicPath: CDN_PATH,
-      path: path.join(__dirname, 'dist'),
+      path: resolvePath('dist'),
       filename: 'public/js/[name].[chunkhash].js',
       chunkFilename: 'public/js/[name].[chunkhash].js',
     },
@@ -96,7 +61,7 @@ module.exports = function(env) {
              * MiniCssExtractPlugin doesn't support HMR.
              * For developing, use 'style-loader' instead.
              * */
-            prod ? MiniCssExtractPlugin.loader : 'style-loader',
+            isProd ? MiniCssExtractPlugin.loader : 'style-loader',
             'css-loader',
           ],
         },
@@ -128,12 +93,18 @@ module.exports = function(env) {
     },
     mode,
     plugins: [
+      new ProcessBarPlugin(),
+      new DefinePlugin({
+        'process.env.NODE_ENV': mode,
+      }),
       new MiniCssExtractPlugin({
         filename: 'public/css/[name].[contenthash].css',
       }),
       new CopyPlugin([{ from: './public/static', to: './public/static' }]),
+      new DashboardPlugin(),
       ...htmlPlugins,
-      ...(!prod
+      ...(isProd ? [new CleanWebpackPlugin()] : []),
+      ...(env && env.analyze
         ? [
             new BundleAnalyzerPlugin({
               analyzerMode: 'static',
@@ -142,8 +113,10 @@ module.exports = function(env) {
           ]
         : []),
     ],
-    devtool: prod ? false : 'source-map',
+    stats: 'errors-only',
+    devtool: isProd ? false : 'source-map',
     devServer: {
+      // quiet: true,
       contentBase: path.join(__dirname, 'public'),
       compress: true,
       port: 9000,

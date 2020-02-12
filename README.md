@@ -1,23 +1,27 @@
 # svelte-web
 
 #### TODO
-- 目录整理(组件目录)
-- 构建删除dist文件
-- html-webpack-plugin引入TDK + TDK配置问题
-- 构建definePlugin
-- 构建图片压缩接入
 - 构建打印优化
-- 构建文件拆分为目录
+- dashboard
+- browserSync
 
 #### FINISH
 - CDN_PATH
 - extra Css
 - Analyzer
 - devServer
+- 目录整理(组件目录)
+- 构建删除dist文件
+- html-webpack-plugin引入TDK + TDK配置问题
+- 构建definePlugin
+- 构建文件拆分为目录
 
 #### 自带
 - Eslint
 - Svelte-preprocess
+
+#### 问题记录
+- less限定为3.9.0版本,最新3.10.1的less会报错
 
 ## Development
 

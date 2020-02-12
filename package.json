@@ -1,9 +1,9 @@
 {
-  "name": "svelte-webpack-template",
+  "name": "svelte-mpa",
   "version": "1.0.0",
   "private": true,
-  "repository": "https://github.com/brandonxiang/svelte-webpack-template.git",
-  "author": "brandonxiang <1542453460@qq.com>",
+  "repository": "",
+  "author": "",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -12,6 +12,7 @@
     "@babel/preset-env": "^7.5.5",
     "autoprefixer": "^9.6.1",
     "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^5.0.3",
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.1",
@@ -21,9 +22,11 @@
     "globby": "^10.0.1",
     "html-webpack-plugin": "3.0.7",
     "husky": "^3.0.4",
+    "less": "3.9.0",
     "lint-staged": "^9.2.3",
     "mini-css-extract-plugin": "^0.6.0",
     "prettier": "^1.18.2",
+    "progress-bar-webpack-plugin": "^2.1.0",
     "style-loader": "^0.23.1",
     "svelte-loader": "2.13.3",
     "svelte-preprocess": "^2.15.1",
@@ -31,12 +34,14 @@
     "webpack": "^4.30.0",
     "webpack-bundle-analyzer": "^3.4.1",
     "webpack-cli": "^3.3.5",
+    "webpack-dashboard": "^3.2.0",
     "webpack-dev-server": "^3.3.1"
   },
   "scripts": {
-    "build": "cross-env NODE_ENV=production webpack",
-    "dev": "webpack-dev-server",
-    "analyze": "NODE_ENV=production webpack --env.analyze=true --mode=production --progress",
+    "build": "cross-env NODE_ENV=production webpack --config ./build/webpack.config.js",
+    "devboard": "webpack-dashboard -- webpack-dev-server --config ./build/webpack.config.js",
+    "dev": "webpack-dev-server --config ./build/webpack.config.js",
+    "analyze": "cross-env NODE_ENV=production webpack --config ./build/webpack.config.js --env.analyze=true --mode=production --progress",
     "format": "prettier --write --svelte-sort-order scripts-markup-styles ./**/*.svelte"
   },
   "dependencies": {

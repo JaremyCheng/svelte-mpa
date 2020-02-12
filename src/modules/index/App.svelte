@@ -1,4 +1,5 @@
 <script>
+  import { getTypeByToString } from '@/utils/detector';
   export let name;
 </script>
 

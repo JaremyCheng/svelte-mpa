@@ -4,8 +4,13 @@
 	<meta charset='utf8'>
 	<meta name='viewport' content='width=device-width'>
 
-	<title>Svelte app</title>
-
+	<title><%= htmlWebpackPlugin.options.title %></title>
+	<!-- meta inject -->
+	<%= 
+	Object.keys(htmlWebpackPlugin.options.meta).map(function(item, idx) {
+		return `<meta name="${item}" content="${htmlWebpackPlugin.options.meta[item]}" />`
+	}).join('')
+	%>
 	<link rel='icon' type='image/png' href='public/static/favicon.png'>
 	<link rel='stylesheet' href='public/static/global.css'>
 </head>

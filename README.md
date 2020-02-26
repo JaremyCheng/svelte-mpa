@@ -31,6 +31,7 @@ Preprocess is the most interesting API of svelte. Therefore, [svelte-preprocess]
 #### TODO
 - 构建打印优化
 - browserSync
+- CSS Module
 
 #### FINISH
 - CDN_PATH
@@ -46,3 +47,5 @@ Preprocess is the most interesting API of svelte. Therefore, [svelte-preprocess]
 
 #### 问题记录
 - less限定为3.9.0版本,最新3.10.1的less会报错
+- svelte-loader版本需>=2.13.5, 解决onwarn无法注入问题
+- 解决兼容IE9+ 同时出现的问题:Class constructor Component cannot be invoked without 'new'

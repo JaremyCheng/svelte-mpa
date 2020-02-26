@@ -1,4 +1,3 @@
-const path = require('path');
 const { DefinePlugin } = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
@@ -26,30 +25,38 @@ module.exports = function(env) {
     output: {
       publicPath: CDN_PATH,
       path: resolvePath('dist'),
-      filename: 'public/js/[name].[chunkhash].js',
-      chunkFilename: 'public/js/[name].[chunkhash].js',
+      filename: 'js/[name].[chunkhash].js',
+      chunkFilename: 'js/[name].[chunkhash].js',
     },
     module: {
       rules: [
         {
           // https://github.com/sveltejs/svelte/issues/717
           test: /\.m?js$/,
-          exclude: /node_modules\/(?!svelte)/,
+          // exclude: /node_modules\/(?!svelte)/,
+          exclude: /\bcore-js\b/,
           use: 'babel-loader',
         },
         {
           test: /\.svelte$/,
-          exclude: /node_modules\/(?!svelte)/,
+          // exclude: /node_modules\/(?!svelte)/,
+          exclude: /\bcor-js\b/,
           use: [
             { loader: 'babel-loader' },
             {
               loader: 'svelte-loader',
               options: {
+                legacy: true,
                 emitCss: true,
                 hotReload: true,
                 preprocess: sveltePreprocess({
                   postcss: true,
                 }),
+                // Disable css "css-unused-selector" warning #67
+                // https://github.com/sveltejs/svelte-loader/issues/67
+                onwarn(warning, onwarn) {
+                  warning.message === 'Unused CSS selector' || onwarn(warning);
+                }
               },
             },
           ],
@@ -61,8 +68,13 @@ module.exports = function(env) {
              * MiniCssExtractPlugin doesn't support HMR.
              * For developing, use 'style-loader' instead.
              * */
-            isProd ? MiniCssExtractPlugin.loader : 'style-loader',
-            'css-loader',
+            isProd ? {
+              loader: MiniCssExtractPlugin.loader,
+              options: {
+                publicPath: '../'
+              }
+            } : 'style-loader',
+            'css-loader'
           ],
         },
         {
@@ -70,7 +82,7 @@ module.exports = function(env) {
           loader: 'url-loader',
           options: {
             limit: 10000,
-            name: 'public/img/[name].[hash:7].[ext]',
+            name: 'img/[name].[hash:7].[ext]',
           },
         },
         {
@@ -78,7 +90,7 @@ module.exports = function(env) {
           loader: 'url-loader',
           options: {
             limit: 10000,
-            name: 'public/media/[name].[hash:7].[ext]',
+            name: 'media/[name].[hash:7].[ext]',
           },
         },
         {
@@ -86,7 +98,7 @@ module.exports = function(env) {
           loader: 'url-loader',
           options: {
             limit: 10000,
-            name: 'public/fonts/[name].[hash:7].[ext]',
+            name: 'fonts/[name].[hash:7].[ext]',
           },
         },
       ],
@@ -95,12 +107,23 @@ module.exports = function(env) {
     plugins: [
       new ProcessBarPlugin(),
       new DefinePlugin({
-        'process.env.NODE_ENV': mode,
+        'process.env': {
+          NODE_ENV: `'${mode}'`,
+          BASE_URL: `'${CDN_PATH}'`
+        },
       }),
       new MiniCssExtractPlugin({
-        filename: 'public/css/[name].[contenthash].css',
+        filename: 'css/[name].[contenthash].css',
       }),
-      new CopyPlugin([{ from: './public/static', to: './public/static' }]),
+      new CopyPlugin(
+        [
+          {
+            from: resolvePath('public/static'),
+            to: resolvePath('dist/static'),
+            toType: 'dir'
+          }
+        ]
+      ),
       new DashboardPlugin(),
       ...htmlPlugins,
       ...(isProd ? [new CleanWebpackPlugin()] : []),
@@ -117,10 +140,10 @@ module.exports = function(env) {
     devtool: isProd ? false : 'source-map',
     devServer: {
       // quiet: true,
-      contentBase: path.join(__dirname, 'public'),
       compress: true,
       port: 9000,
       open: false,
+      host: '0.0.0.0'
     },
   };
 

@@ -1,7 +1,7 @@
 const path = require('path');
 const globby = require('globby');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const TDK = require('../public/tdk');
+const TDK = require('./tdk');
 const { isProd } = require('./config');
 exports.resolvePath = function resolvePath(filePath) {
   return path.resolve(__dirname, '../', filePath);
@@ -14,7 +14,11 @@ exports.getEntries = function getEntries() {
     allEntry.forEach(entry => {
       const res = entry.match(/src\/modules\/(\w+)\/main\.js/);
       if (res.length) {
-        entries[res[1]] = `./${entry}`;
+
+        // 解决: Class constructor Component cannot be invoked without 'new'
+        // https://github.com/vadimdemedes/ink/issues/37
+        // TODO 优化babel-polyfill
+        entries[res[1]] = ["babel-polyfill", `./${entry}`];
       }
     });
     return entries;

@@ -1,8 +1,16 @@
 module.exports = {
   presets: [
-    // 解决ES6 classes不使用new的问题
+    // 解决: Class constructor Component cannot be invoked without 'new'
     // https://github.com/vadimdemedes/ink/issues/37
-    ['@babel/preset-env', { targets: { node: 'current' } }],
-  ],
-  plugins: ['@babel/plugin-transform-runtime'],
+    // TODO 优化babel-polyfill
+    ['@babel/preset-env', {
+      targets: {
+        "browsers": [
+          "> 1%",
+          "ie >= 9",
+          "last 2 versions"
+        ]
+      }
+    }],
+  ]
 };

@@ -24,6 +24,7 @@ npm run analyze
 - 构建打印优化
 - browserSync
 - CSS Module
+- babel-polyfill带来的文件过大问题
 
 #### FINISH
 - CDN_PATH
